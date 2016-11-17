@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Constants
+EMPTY='\033[0m ' # Hadn't commits on this day
+LOW='\033[1;32m\u25A0\033[0m' # At least one
+NORMAL='\033[1;33m\u25A0\033[0m' # 1/max(commits)
+ONFIRE='\033[0;32m\u25A0\033[0m' # max(commits)
+
 # Current date
 currentDate=`date +%Y-%m-%d`
 # Date year ago
@@ -8,20 +14,20 @@ dateYearAgo=`date "--date=${date} -1 year" +%Y-%m-%d`
 counter=0
 tmpDate=$dateYearAgo
 # Offset
-OffsetX=0
-OffsetY=0
+X=0
+Y=0
 # Clear screen, set cursor position
-tput clear;tput cup $OffsetX $OffsetY
+tput clear;tput cup $X $Y
 week=0
 while [ "$tmpDate" != "$currentDate" ]
 do
     let "counter=$counter + 1"
-    let "OffsetX=($counter/7) + 0"
-    let "OffsetY=0 + $week"
+    let "X=($counter/7)"
+    let "Y=$week"
     let "week=$week+1"
 
     tmpDate=`date "--date=$tmpDate +1 day" +%Y-%m-%d`
-    tput cup $OffsetY $OffsetX;echo "0"
+    tput cup $Y $X;echo -e "${LOW}"
     if [ $week -eq 6 ]
     then
         week=0
