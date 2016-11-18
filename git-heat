@@ -16,22 +16,34 @@ tmpDate=$dateYearAgo
 # Offset
 X=0
 Y=0
+OffsetX=0
+OffsetY=0
 # Clear screen, set cursor position
 tput clear;tput cup $X $Y
 week=0
+month=`date "--date=${tmpDate}" +%m`
 while [ "$tmpDate" != "$currentDate" ]
 do
     let "counter=$counter + 1"
-    let "X=($counter/7)"
-    let "Y=$week"
+    let "Y=($counter/7) + $OffsetY"
+    let "X=$week + $OffsetX"
     let "week=$week+1"
 
     tmpDate=`date "--date=$tmpDate +1 day" +%Y-%m-%d`
-    tput cup $Y $X;echo -e "${LOW}"
-    if [ $week -eq 6 ]
+
+    tput cup $X $Y;echo -e "${LOW}"
+    currentMonth=`date "--date=${tmpDate}" +%m`
+    if [ $month -ne $currentMonth ]
+    then
+        let "OffsetY=$OffsetY+1"
+        month=$currentMonth
+    fi
+    if [ $week -eq 7 ]
     then
         week=0
+        let "OffsetY=$OffsetY+1"
     fi
+    #echo -e "Y: $Y X:$X O:$Offset W:$week"
 done
-
-echo $counter
+let "X=$X + 7"
+tput cup $X 0
