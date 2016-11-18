@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Constants
-EMPTY='\033[0m ' # Hadn't commits on this day
+EMPTY='\033[1;37m\u25A0\033[0m' # Hadn't commits on this day
 LOW='\033[1;32m\u25A0\033[0m' # At least one
 NORMAL='\033[1;33m\u25A0\033[0m' # 1/max(commits)
 ONFIRE='\033[0;32m\u25A0\033[0m' # max(commits)
@@ -31,11 +31,11 @@ do
 
     tmpDate=`date "--date=$tmpDate +1 day" +%Y-%m-%d`
 
-    tput cup $X $Y;echo -e "${LOW}"
+    tput cup $X $Y;echo -e "${EMPTY}"
     currentMonth=`date "--date=${tmpDate}" +%m`
     if [ $month -ne $currentMonth ]
     then
-        let "OffsetY=$OffsetY+1"
+        let "OffsetY=$OffsetY+2"
         month=$currentMonth
     fi
     if [ $week -eq 7 ]
