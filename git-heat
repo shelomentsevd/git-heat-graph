@@ -1,7 +1,8 @@
 #!/bin/bash
-
+# Commit author
+COMMIT_AUTHOR=$1
 # Constants
-EMPTY='\033[0m ' # Hadn't commits on this day
+EMPTY='\033[1;37m\u25A0\033[0m' # Hadn't commits on this day
 LOW='\033[1;32m\u25A0\033[0m' # At least one
 NORMAL='\033[1;33m\u25A0\033[0m' # 1/max(commits)
 ONFIRE='\033[0;32m\u25A0\033[0m' # max(commits)
@@ -16,8 +17,8 @@ tmpDate=$dateYearAgo
 # Offset
 X=0
 Y=0
-OffsetX=0
-OffsetY=0
+OffsetX=1
+OffsetY=5
 # Clear screen, set cursor position
 tput clear;tput cup $X $Y
 week=0
@@ -25,25 +26,50 @@ month=`date "--date=${tmpDate}" +%m`
 while [ "$tmpDate" != "$currentDate" ]
 do
     let "counter=$counter + 1"
-    let "Y=($counter/7) + $OffsetY"
+    let "ost=$counter % 7"
+    if [ $ost -eq 0 ]
+    then
+        let "Y=($counter/7) + $OffsetY - 1"
+    else
+        let "Y=($counter/7) + $OffsetY"
+    fi
     let "X=$week + $OffsetX"
     let "week=$week+1"
-
-    tmpDate=`date "--date=$tmpDate +1 day" +%Y-%m-%d`
-
-    tput cup $X $Y;echo -e "${LOW}"
+    # Day of week
+    currentWeekDay=`date "--date=${tmpDate}" +%a`
+    tput cup $X 0;echo -e "$currentWeekDay"
+    # Month
     currentMonth=`date "--date=${tmpDate}" +%m`
     if [ $month -ne $currentMonth ]
     then
-        let "OffsetY=$OffsetY+1"
+        #tput cup 0 $Y; echo -e `date "--date=${tmpDate}" +%b`
+        let "OffsetY=$OffsetY+3"
         month=$currentMonth
     fi
-    if [ $week -eq 7 ]
+    if [ $week -gt 6 ]
     then
         week=0
         let "OffsetY=$OffsetY+1"
     fi
-    #echo -e "Y: $Y X:$X O:$Offset W:$week"
+    prevDate=$tmpDate
+    tmpDate=`date "--date=$tmpDate +1 day" +%Y-%m-%d`
+    commitsNumber=`git rev-list --count --all --date=short --before=$tmpDate --after=$prevDate --author=$COMMIT_AUTHOR`
+    if [ $commitsNumber -lt 1 ]
+    then
+        tput cup $X $Y;echo -e "${EMPTY}"
+    else
+        if [ $commitsNumber -lt 3 ]
+        then
+            tput cup $X $Y;echo -e "${LOW}"
+        else
+            if [ $commitsNumber -lt 5 ]
+            then
+                tput cup $X $Y;echo -e "${NORMAL}"
+            else
+                tput cup $X $Y;echo -e "${ONFIRE}"
+            fi
+        fi
+    fi
 done
 let "X=$X + 7"
 tput cup $X 0
