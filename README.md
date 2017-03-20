@@ -5,4 +5,5 @@ I wrote this under impression from github heat graph.
 # Command syntax
 git-heat-graph [author]
 
-# Examples
+# Example
+![alt tag](https://github.com/shelomentsevd/git-heat-graph/blob/master/git-heat-graph.png)
